@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Map</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSTekXTojzx2JpBfMjA9HhvTputjS3prY&callback=initMap">
+    </script>
+
+    <style type="text/css">
+        #map {
+            margin-left: auto;
+            margin-right: auto;
+            height: 430px;
+            width: 275px;
+        }
+
+        html,
+        body {
+            padding: 0;
+            margin: auto;
+            background-attachment: fixed;
+            color: white;
+            background-color: #3e423e;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+
+        td {
+            text-align: center;
+        }
+
+        .button {
+            background-color: #4a4f4a;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 10px 10px;
+        }
+
+        .bleft {
+            float: left;
+        }
+    </style>
+    <script>
+        var SerialPort = require('serialport');
+        var port = new SerialPort.SerialPort('/dev/rfcomm0', { 
+        parser: SerialPort.parsers.readline('\r\n')
+        });
+        //data=  "$GPGGA,191214,4240.95569,N,02321.51008,E,1,00,,597.457,M,,M,,*7B"
+        var GPS = require('gps');
+        var gps = new GPS;
+
+        gps.on('data', function(data) {
+        console.log(data, gps.state);
+        });
+
+        port.on('data', function(data) {
+        gps.updatePartial(data);
+        }); 
+
+        data = gps.update(data)
+        let map, infoWindow;
+
+        function initMap() {
+            // The location of Uluru
+            var uluru = { lat: data.lat, lng: data.lon };
+            // The map, centered at Uluru
+            var map = new google.maps.Map(
+                document.getElementById('map'), { zoom: 16, center: uluru });
+            // The marker, positioned at Uluru
+            var marker = new google.maps.Marker({ position: uluru, map: map });
+        }
+    </script>
+
+</head>
+
+<body>
+
+    <table>
+        <td>
+            <form action="./smike.html">
+                <button class="button bleft"><</button>
+            </form>
+        </td>
+        <td>
+            <div id="map"></div>
+        </td>
+    </table>
+    <div id="map"></div>
+
+</body>
+
+</html>
