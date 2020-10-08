@@ -53,27 +53,32 @@
     </style>
     <script>
         var SerialPort = require('serialport');
-        var port = new SerialPort.SerialPort('/dev/rfcomm0', { 
+        var port = new SerialPort.SerialPort('/dev/rfcomm0', {
         parser: SerialPort.parsers.readline('\r\n')
         });
         //data=  "$GPGGA,191214,4240.95569,N,02321.51008,E,1,00,,597.457,M,,M,,*7B"
         var GPS = require('gps');
         var gps = new GPS;
-
-        gps.on('data', function(data) {
-        console.log(data, gps.state);
-        });
+        var datao;
 
         port.on('data', function(data) {
-        gps.updatePartial(data);
-        }); 
+            gps.updatePartial(data);
+        });
 
-        data = gps.update(data)
+        datao = gps.on('data', function(data) {
+            //console.log(data, gps.state);
+            //console.log(data.state.lat)
+            return data;
+        });
+        //console.log(datao.state.lat)
+
+        //gps.update(data)
+        //console.log(data)
         let map, infoWindow;
 
         function initMap() {
             // The location of Uluru
-            var uluru = { lat: data.lat, lng: data.lon };
+            var uluru = { lat: Number(datao.state.lat), lng: Number(datao.state.lon)};
             // The map, centered at Uluru
             var map = new google.maps.Map(
                 document.getElementById('map'), { zoom: 16, center: uluru });
